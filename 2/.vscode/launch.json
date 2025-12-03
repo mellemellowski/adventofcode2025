@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug AdventOfCode2",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/AoC2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+
+            "preLaunchTask": "build"   // <-- MUST match tasks.json label
+        }
+    ]
+}
