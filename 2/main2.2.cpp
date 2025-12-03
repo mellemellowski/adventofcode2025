@@ -54,43 +54,42 @@ bool blocksMatch(const std::string& s, int blockSize) {
     return true;
 }
 
+// Regex-based check for repeating blocks of size n
+bool matchesPatternRegex(const std::string& s, int blockSize) {
+    // Construct regex: ^(.{n})\1*$
+    std::string pattern = "^(.{" + std::to_string(blockSize) + "})\\1*$";
+    std::regex re(pattern);
+    return std::regex_match(s, re);
+}
+
 long long extractInvalidIds(const std::vector<Range>& ranges) {
     long long cksum = 0;
-    bool lastRun = false;
+
     for (const Range& r : ranges) {
         for (long long num = r.start; num <= r.end; ++num) {
             std::string s = std::to_string(num);
             int len = s.length();
-
-            // Determine max block size = len/2
             int maxBlock = len / 2;
+            bool matched = false;
 
             // Loop over block sizes according to even/odd rule
-            for (int blockSize = 1; blockSize <= maxBlock; ) {
-                //int currentBlock = std::min(blockSize, maxBlock);
-                if (blocksMatch(s, blockSize)) {
+            for (int blockSize = 1; ; ) {
+                int currentBlock = std::min(blockSize, maxBlock);
+
+                if (matchesPatternRegex(s, currentBlock)) {
                     cksum += num;
                     std::cout << "  Match: " << s << " (cksum now " << cksum << ")\n";
+                    matched = true;
                     break;
                 }
-                if(lastRun){
-                    lastRun = false;
-                    break;
-                }
+
+                if (currentBlock == maxBlock) break;
 
                 // Increment block size
                 if (len % 2 == 0) {
-                    blockSize *= 2;   // even: 1,2,4,…
-                    if(blockSize > maxBlock){
-                        blockSize = maxBlock;
-                        lastRun = true;
-                    }
+                    blockSize *= 2;      // even
                 } else {
-                    blockSize = blockSize * 2 + 1; // odd: 1,3,7,…
-                    if(blockSize > maxBlock){
-                        blockSize = maxBlock;
-                        lastRun = true;
-                    }
+                    blockSize = blockSize * 2 + 1; // odd
                 }
             }
         }
@@ -104,7 +103,7 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();  // Start
 
     try {
-        std::string filePath = getExecutableDir() + "\\dataTest.txt";
+        std::string filePath = getExecutableDir() + "\\data.txt";
 
         DataFileReader reader(filePath);
         std::string content = reader.readAll();
